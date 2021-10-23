@@ -1,12 +1,14 @@
 (() => {
-  let width = 320;
-  let height = 0;
+  const canvasWidth = 20;
   let streaming = false;
 
+  function newSvg(tag) {
+    return document.createElementNS("http://www.w3.org/2000/svg", tag);
+  }
+
   let video = document.getElementById('video');
-  let canvas = document.getElementById('canvas');
-  let photo = document.getElementById('photo');
-  let startbutton = document.getElementById('startbutton');
+  let canvas = document.createElement('canvas');
+  let svg = document.getElementById('svg');
 
   navigator.mediaDevices.getUserMedia({video: true, audio: false})
   .then(stream => {
@@ -17,39 +19,39 @@
 
   video.oncanplay = () => {
     if (!streaming) {
-      height = video.videoHeight / (video.videoWidth/width);
-      video.setAttribute('width', width);
-      video.setAttribute('height', height);
-      canvas.setAttribute('width', width);
-      canvas.setAttribute('height', height);
+      let ratio = video.videoWidth / video.videoHeight;
+      canvas.width = canvasWidth;
+      canvas.height = canvasWidth / ratio;
+      svg.setAttribute("viewBox", "0 0 " + canvas.width + " " + canvas.height);
       streaming = true;
+      update();
+      setInterval(() => update(), 1000);
     }
   };
-
-  startbutton.onclick = () => {
-    takepicture();
-    ev.preventDefault();
-  };
   
-  clearphoto();
+  function update() {
+    let context = canvas.getContext('2d');
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    let data = context.getImageData(0, 0, canvas.width, canvas.height).data;
+    let map = [];
+    for (let x = 0; x < canvas.width; x++) {
+      map[x] = [];
+      for (let y = 0; y < canvas.height; y++) {
+        let i = (y * canvas.width + x) * 4;
+        map[x][y] = data.slice(i, i + 4);
+      }
+    }
 
-  function clearphoto() {
-    let context = canvas.getContext('2d');
-    context.fillStyle = "#AAA";
-    context.fillRect(0, 0, canvas.width, canvas.height);
-    photo.src = canvas.toDataURL('image/png');
-  }
-  
-  function takepicture() {
-    let context = canvas.getContext('2d');
-    if (width && height) {
-      canvas.width = width;
-      canvas.height = height;
-      context.drawImage(video, 0, 0, width, height);
-    
-      photo.src = canvas.toDataURL('image/png');
-    } else {
-      clearphoto();
+    svg.innerHTML = "";
+    for (let x = 0; x < canvas.width; x++) {
+      for (let y = 0; y < canvas.height; y++) {
+        let circle = newSvg("circle");
+        circle.setAttribute("r", 0.4);
+        circle.setAttribute("cx", x + 0.5);
+        circle.setAttribute("cy", y + 0.5);
+        circle.setAttribute("fill", "rgb(" + map[x][y][0] + "," + map[x][y][1] + "," + map[x][y][2] + ")");
+        svg.appendChild(circle);
+      }
     }
   }
 })();

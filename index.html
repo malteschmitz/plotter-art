@@ -3,13 +3,25 @@
 <head>
 	<title>Plotter Art</title>
 	<meta charset='utf-8'>
+  <style type="text/css">
+    body {
+      padding: 0;
+      margin: 0;
+    }
+    #video {
+      width: 100%;
+    }
+    #svg {
+      width: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+  </style>
 </head>
 <body>
 <video id="video"></video>
-<button id="startbutton">Take photo</button> 
-<canvas id="canvas"></canvas>
-<img id="photo"> 
-
+<svg id="svg" xmlns="http://www.w3.org/2000/svg"></svg>
 <script src="art.js"></script>
 </body>
 </html>
