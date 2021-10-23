@@ -54,4 +54,16 @@
       }
     }
   }
+
+  function toggleFullScreen() {
+    if (!fscreen.fullscreenElement) {
+        fscreen.requestFullscreen(document.documentElement);
+    } else {
+      if (fscreen.exitFullscreen) {
+        fscreen.exitFullscreen();
+      }
+    }
+  }
+
+  svg.onclick = () => toggleFullScreen();
 })();
