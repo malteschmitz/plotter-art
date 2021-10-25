@@ -8,20 +8,33 @@
       padding: 0;
       margin: 0;
     }
-    #video {
+    /*@keyframes fade {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }*/
+    #video, #svg {
       width: 100%;
+      max-width: 600px;
     }
+    /*#video {
+      animation: fade 1s linear 8s forwards;
+    }*/
     #svg {
-      width: 100%;
       position: absolute;
       top: 0;
       left: 0;
     }
+    #container {
+      position: relative;
+    }
   </style>
 </head>
 <body>
-<video id="video"></video>
-<svg id="svg" xmlns="http://www.w3.org/2000/svg"></svg>
+<div id="container">
+  <!-- <video id="video" src="bunny.webm" autoplay loop></video> -->
+  <video id="video"></video>
+  <svg id="svg" xmlns="http://www.w3.org/2000/svg"></svg>
+</div>
 <script src="fscreen.js"></script>
 <script src="art.js"></script>
 </body>
