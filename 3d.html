@@ -18,16 +18,18 @@
 <div>
   <input type="range" id="rangeC" name="rangeC" min="0" max="3600" value="450">
   <label for="rangeC">Z</label>
+  (<label><input type="checkbox" id="animateCheckbox"> animate</label>)
 </div>
 <div>
   <input type="range" id="rangeAmp" name="rangeAmp" min="-100" max="100" value="30">
   <label for="rangeAmp">Amp</label>
+  (<label><input type="checkbox" id="invertCheckbox"> invert</label>)
 </div>
 
 <p><svg xmlns="http://www.w3.org/2000/svg" id="svg" width="1200"><path stroke="black" stroke-width="0.1" fill="transparent" id="path"></path></svg></p>
 
 <script>
-let canvasWidth = 120;
+let canvasWidth = 100;
 
 const PI = Math.PI;
 const cos = Math.cos;
@@ -38,13 +40,16 @@ let context = canvas.getContext('2d');
 let canvasHeight;
 let data;
 
-function get(x, y, a, b, c, amp) {
+function get(x, y, a, b, c, amp, invert) {
   if (y % 2 === 1) {
     x = canvas.width - 1 - x;
   }
   let i = (y * canvas.width + x) * 4;
   let [red, green, blue, alpha] = data.slice(i, i + 4);
   let brightness = (0.2126 * red / 255 + 0.7152 * green / 255 + 0.0722 * blue / 255);
+  if (invert) {
+    brightness = 1 - brightness;
+  }
   let xa = 0.5 + x - canvasWidth / 2;
   let ya = 0.5 + y - canvasHeight / 2;
   let za = amp * 30 * brightness;
@@ -61,10 +66,11 @@ function update() {
   let b = rangeB.value / 1800 * PI;
   let c = rangeC.value / 1800 * PI;
   let amp = rangeAmp.value / 100;
-  let d = "M " + get(0, 0, a, b, c, amp) + " L ";
+  let invert = invertCheckbox.checked;
+  let d = "M " + get(0, 0, a, b, c, amp, invert) + " L ";
   for (let y = 0; y < canvas.height; y++) {
     for (let x = 0; x < canvas.width; x++) {
-      d += " " + get(x, y, a, b, c, amp);
+      d += " " + get(x, y, a, b, c, amp, invert);
     }
   }
   path.setAttribute("d", d);
@@ -91,21 +97,21 @@ rangeA.oninput = () => update();
 rangeB.oninput = () => update();
 rangeC.oninput = () => update();
 rangeAmp.oninput = () => update();
+invertCheckbox.oninput = () => update();
 
 let start, previousTimeStamp;
-
 function step(timestamp) {
-  if (start === undefined)
+  if (start === undefined) {
     start = timestamp;
+  }
   const elapsed = timestamp - start;
-
-  rangeC.value = (elapsed / 18) % 3600;
-  update();
-   
+  if (animateCheckbox.checked) {
+    rangeC.value = (elapsed / 18) % 3600;
+    update();
+  }  
   previousTimeStamp = timestamp
   window.requestAnimationFrame(step);
 }
-
 window.requestAnimationFrame(step);
 </script>
 </body>
